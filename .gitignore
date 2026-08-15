@@ -6,3 +6,33 @@ plan.md
 
 # frontend
 frontend/node_modules
+
+
+# backend
+__pycache__/
+*.py[cod]
+backend/venv/
+
+
+# environment
+**/.env    
+**/.env.local 
+**/.env.development
+**/.env.production
+
+
+# OS files
+.DS_Store          # macOS
+Thumbs.db          # Windows
+
+# editor
+.vscode/
+.idea/
+
+# next.js build output 
+frontend/.next/
+frontend/out/
+
+# chromadb local storage 
+backend/chroma_db/
+backend/*.sqlite3
