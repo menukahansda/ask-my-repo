@@ -32,11 +32,12 @@ Thumbs.db          # Windows
 # next.js build output 
 frontend/.next/
 frontend/out/
+frontend/next-env.d.ts
 
 # chromadb local storage 
 backend/chroma_db/
 backend/*.sqlite3
 
 # intermediate files
-backend/clone_repos/
+backend/cloned_repos/
 backend/chunks.txt
