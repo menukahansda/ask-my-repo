@@ -36,3 +36,6 @@ frontend/out/
 # chromadb local storage 
 backend/chroma_db/
 backend/*.sqlite3
+
+# intermediate files
+backend/clone_repos/
