@@ -39,3 +39,4 @@ backend/*.sqlite3
 
 # intermediate files
 backend/clone_repos/
+backend/chunks.txt
