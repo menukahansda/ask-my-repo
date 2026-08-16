@@ -79,6 +79,7 @@ def walk_and_chunk_files(clone_dir):
 
     total_files = 0
     total_chunks = 0
+    all_chunks = []
 
     for dirpath, dirnames, filenames in os.walk(clone_dir):
         dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIRS]
@@ -106,10 +107,13 @@ def walk_and_chunk_files(clone_dir):
                     f.write(chunk["content"])
                     f.write("\n\n")
                     total_chunks += 1
+                    all_chunks.append(chunk)
 
     print(f"Files processed: {total_files}")
     print(f"Chunks created: {total_chunks}")
     print(f"Preview saved to: {output_file}")
+    
+    return all_chunks
 
 
 if __name__ == "__main__":
