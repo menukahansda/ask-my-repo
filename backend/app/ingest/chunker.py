@@ -13,6 +13,10 @@ EXCLUDE_DIRS = {
     "__pycache__",
     "venv",
     ".venv",
+    "dist",
+    "build",
+    ".next",
+    "coverage",
 }
 
 EXCLUDE_EXTS = {
@@ -32,14 +36,22 @@ EXCLUDE_EXTS = {
     ".7z",
 }
 
+EXCLUDE_FILES = {
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    ".gitignore",
+}
+
 CHUNK_SIZE = 1000
 OVERLAP = 100
 
 
-def chunk_file(file_path, chunk_size=CHUNK_SIZE, overlap=OVERLAP):
+def chunk_file(clone_dir, file_path, chunk_size=CHUNK_SIZE, overlap=OVERLAP):
     """Read one file and return its chunks."""
 
     assert overlap < chunk_size, "overlap must be smaller than chunk_size"
+    relative_path = file_path.relative_to(clone_dir).as_posix()
 
     text = file_path.read_text(encoding="utf-8", errors="ignore")
     chunks = []
@@ -49,9 +61,10 @@ def chunk_file(file_path, chunk_size=CHUNK_SIZE, overlap=OVERLAP):
     while start < len(text):
         end = start + chunk_size
         chunk = {
+            "id": f"{relative_path}::chunk_{chunk_index}",
             "content": text[start:end],
             "metadata": {
-                "file_origin": str(file_path),
+                "file_origin": relative_path,
                 "chunk_index": chunk_index,
             },
         }
@@ -84,15 +97,17 @@ def walk_and_chunk_files(clone_dir):
     for dirpath, dirnames, filenames in os.walk(clone_dir):
         dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIRS]
         for filename in filenames:
-            if Path(filename).suffix.lower() in EXCLUDE_EXTS or filename.startswith(
-                "."
+            if (
+                Path(filename).suffix.lower() in EXCLUDE_EXTS
+                or filename.startswith(".")
+                or filename in EXCLUDE_FILES
             ):
                 continue
 
             file_path = Path(dirpath) / filename
 
             try:
-                chunks = chunk_file(file_path)
+                chunks = chunk_file(clone_dir, file_path)
             except (OSError, UnicodeDecodeError) as e:
                 print(f"Skipping {file_path}: {e}")
                 continue
@@ -103,6 +118,7 @@ def walk_and_chunk_files(clone_dir):
                     f.write("=" * 80 + "\n")
                     f.write(f"FILE: {chunk['metadata']['file_origin']}\n")
                     f.write(f"CHUNK: {chunk['metadata']['chunk_index']}\n")
+                    f.write(f"ID: {chunk['id']}\n")
                     f.write("=" * 80 + "\n")
                     f.write(chunk["content"])
                     f.write("\n\n")
@@ -112,7 +128,7 @@ def walk_and_chunk_files(clone_dir):
     print(f"Files processed: {total_files}")
     print(f"Chunks created: {total_chunks}")
     print(f"Preview saved to: {output_file}")
-    
+
     return all_chunks
 
 
