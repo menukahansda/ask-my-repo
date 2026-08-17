@@ -56,7 +56,7 @@ def chat(query, n_results=5):
 
 
 if __name__ == "__main__":
-    user_query = "What is the purpose of the 'task_management_system' repository?"
+    user_query = "What is the purpose of this repository?"
     result = chat(user_query)
     print(result["answer"])
     print("\nSources:", result["sources"])

@@ -1,15 +1,23 @@
 # embed and upsert into vectorstore
-from sentence_transformers import SentenceTransformer
+'''Use google embedding model for lightweight and faster usage'''
+from google import genai
+# from sentence_transformers import SentenceTransformer
 
-from app.config import CLONE_DIR
+from app.config import CLONE_DIR, GEMINI_API_KEY
 from app.ingest.chunker import walk_and_chunk_files
 from app.db.vectorstore import collection
 
-model = SentenceTransformer("BAAI/bge-small-en-v1.5")
+genai_client = genai.Client(api_key=GEMINI_API_KEY)
+
+# model = SentenceTransformer("BAAI/bge-small-en-v1.5")
 
 # to embed single text, also for query retrieval
 def embed(texts):
-    return model.encode(texts)
+    response = genai_client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=texts,
+    )
+    return [e.values for e in response.embeddings]
 
 # embed and upsert chunks into vectorstore
 def embed_and_upsert(chunks):
