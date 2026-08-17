@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,8 +11,16 @@ from app.ingest.embed import ingest
 from app.rag.chat import chat
 from app.db.vectorstore import collection
 
-app = FastAPI()
 PORT = 8000
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Model loaded and ready.")
+    yield
+    print("Shutting down.")
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
