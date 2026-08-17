@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from app.config import CLONE_DIR
+from app.config import CLONE_DIR, REINDEX_TOKEN
 from app.ingest.fetch_repo import fetch_repo, clean_repo
 from app.ingest.embed import ingest
 from app.rag.chat import chat
@@ -45,7 +45,9 @@ def check_health():
 
 
 @app.post("/ingest")
-def ingest_repo(request: IngestRequest):
+def ingest_repo(request: IngestRequest, x_reindex_token: str = Header(None)):
+    if x_reindex_token != REINDEX_TOKEN:
+            raise HTTPException(status_code=401, detail="Unauthorized")
     clean_repo(CLONE_DIR)   
          
     clean_collection()
