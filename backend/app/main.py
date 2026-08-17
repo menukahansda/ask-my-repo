@@ -9,7 +9,7 @@ from app.config import CLONE_DIR
 from app.ingest.fetch_repo import fetch_repo, clean_repo
 from app.ingest.embed import ingest
 from app.rag.chat import chat
-from app.db.vectorstore import collection
+from app.db.vectorstore import clean_collection
 
 PORT = 8000
 
@@ -48,9 +48,7 @@ def check_health():
 def ingest_repo(request: IngestRequest):
     clean_repo(CLONE_DIR)   
          
-    existing = collection.get()
-    if existing["ids"]:
-        collection.delete(ids=existing["ids"])
+    clean_collection()
         
     fetch_repo(request.repo_url, CLONE_DIR)
     ingest()
