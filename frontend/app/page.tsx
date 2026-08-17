@@ -9,7 +9,7 @@ export default function Home() {
   const [ans, setAnswer] = useState("");
   const [sources, setSources] = useState([]);
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
