@@ -9,45 +9,50 @@ export default function Home() {
   const [ans, setAnswer] = useState("");
   const [sources, setSources] = useState([]);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const res = await fetch("http://localhost:8000/ingest", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        repo_url: url,
-      }),
-    });
+    try {
+      const res = await fetch(`${API_URL}/ingest`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repo_url: url,
+        }),
+      });
 
-    if (!res.ok) {
-      setError("Internal Server Error");
+      if (!res.ok) {
+        setError("Internal Server Error");
+        return;
+      }
+
+      const result = await fetch(`${API_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: ques,
+        }),
+      });
+
+      if (!result.ok) {
+        setError("Internal Server Error");
+        return;
+      }
+      const data = await result.json();
+      setAnswer(data.answer);
+      setSources(data.sources);
+    } catch (err) {
+      setError("Could not reach the server. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const result = await fetch("http://localhost:8000/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        question: ques,
-      }),
-    });
-
-    if (!result.ok) {
-      setError("Internal Server Error");
-      setLoading(false);
-      return;
-    }
-    const data = await result.json();
-    setAnswer(data.answer);
-    setSources(data.sources);
-    setLoading(false);
   }
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 term-bg">
@@ -66,9 +71,7 @@ export default function Home() {
                 <span className="prompt-symbol">$</span> ask-my-repo
                 <span className="cursor" />
               </h1>
-              <p className="term-sub">
-                point me at a repo, then ask anything.
-              </p>
+              <p className="term-sub">point me at a repo, then ask anything.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -147,10 +150,6 @@ export default function Home() {
             )}
           </div>
         </div>
-
-        <p className="footer-note">
-          runs locally 
-        </p>
       </div>
     </div>
   );
