@@ -1,0 +1,15 @@
+name: Reindex Vector Store
+
+on:
+  workflow_dispatch:
+
+jobs:
+  reindex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reindex via API
+        run: |
+          curl -f -X POST https://ask-my-repo-ljml.onrender.com/ingest \
+            -H "Content-Type: application/json" \
+            -H "x-reindex-token: ${{ secrets.REINDEX_TOKEN }}" \
+            -d '{"repo_url": "${{ vars.TARGET_REPO_URL }}"}'
