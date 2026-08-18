@@ -10,6 +10,7 @@ export default function Home() {
   const [sources, setSources] = useState([]);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const REINDEX_TOKEN = process.env.NEXT_PUBLIC_REINDEX_TOKEN || "";
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -20,6 +21,7 @@ export default function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-reindex-token": REINDEX_TOKEN,
         },
         body: JSON.stringify({
           repo_url: url,
@@ -48,7 +50,7 @@ export default function Home() {
       const data = await result.json();
       setAnswer(data.answer);
       setSources(data.sources);
-    } catch (err) {
+    } catch  {
       setError("Could not reach the server. Please try again.");
     } finally {
       setLoading(false);
