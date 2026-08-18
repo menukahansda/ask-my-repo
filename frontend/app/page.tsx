@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -11,6 +11,10 @@ export default function Home() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const REINDEX_TOKEN = process.env.NEXT_PUBLIC_REINDEX_TOKEN || "";
+
+  useEffect(() => {
+    fetch(`${API_URL}/`).catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,7 +54,7 @@ export default function Home() {
       const data = await result.json();
       setAnswer(data.answer);
       setSources(data.sources);
-    } catch  {
+    } catch {
       setError("Could not reach the server. Please try again.");
     } finally {
       setLoading(false);
