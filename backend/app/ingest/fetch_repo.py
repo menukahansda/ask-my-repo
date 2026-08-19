@@ -35,10 +35,10 @@ def validate_url(target_repo_url):
     if not owner or not repo:
         return None
 
-    cloned_subdir = f"{owner}-{repo}"
+    clone_subdir = f"{owner}-{repo}"
     normalized_url = f"https://github.com/{owner}/{repo}.git"
 
-    return {"target_repo_url": normalized_url, "cloned_subdir": cloned_subdir}
+    return {"target_repo_url": normalized_url, "clone_subdir": clone_subdir}
 
 
 def fetch_repo(target_repo_url):
@@ -47,16 +47,16 @@ def fetch_repo(target_repo_url):
         return {"success": False, "error": "invalid_url", "message": "The provided URL is not a valid GitHub repository URL."}
 
     os.makedirs(CLONE_DIR, exist_ok=True)
-    cloned_dir_path = Path(CLONE_DIR) / result["cloned_subdir"]
+    clone_dir_path = Path(CLONE_DIR) / result["clone_subdir"]
     
-    if (cloned_dir_path / ".git").exists():
-        return {"success": True, "message":"Cloned repo already exists", "clone_dir": str(cloned_dir_path)}
+    if (clone_dir_path / ".git").exists():
+        return {"success": True, "message":"Cloned repo already exists", "clone_dir": str(clone_dir_path)}
     try:
-        Repo.clone_from(result["target_repo_url"], cloned_dir_path)
+        Repo.clone_from(result["target_repo_url"], clone_dir_path)
     except GitCommandError:
         return {"success": False, "error": "clone_failed", "message": "Could not clone the repository. It may be private, not exist, or there was a network issue."}
     
-    return {"success": True, "message": "Cloning completed.", "cloned_dir": str(cloned_dir_path)}
+    return {"success": True, "message": "Cloning completed.", "clone_dir": str(clone_dir_path)}
 
 
 def clean_repo(clone_dir):
