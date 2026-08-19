@@ -45,6 +45,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           question: ques,
+          repo_url: url,
         }),
       });
 
