@@ -1,6 +1,10 @@
 from app.rag.retriever import retrieve
 
-results = retrieve("What is the workflow of this project?")
+repo_slug = "menukahansda-task-management-system"
 
-for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
-    print(meta["file_origin"], "-", doc[:100])
+results = retrieve(
+    "What is the workflow of this project?",
+    repo_slug,
+)
+
+print(results)

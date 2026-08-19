@@ -2,12 +2,15 @@ from app.ingest.fetch_repo import validate_url
 
 EXPECTED = {
     "target_repo_url": "https://github.com/menukahansda/ask-my-repo.git",
-    "clone_subdir": "menukahansda-ask-my-repo",
+    "repo_slug": "menukahansda-ask-my-repo",
 }
 
 
 def test_extra_path_segments():
-    assert validate_url("https://github.com/menukahansda/ask-my-repo/commits/main/") == EXPECTED
+    assert (
+        validate_url("https://github.com/menukahansda/ask-my-repo/commits/main/")
+        == EXPECTED
+    )
 
 
 def test_owner_only_trailing_slash():
@@ -18,14 +21,26 @@ def test_clean_url():
     assert validate_url("https://github.com/menukahansda/ask-my-repo") == EXPECTED
 
 
+def test_valid_url_with_query_and_fragment():
+    assert (
+        validate_url(
+            "https://github.com/menukahansda/ask-my-repo?tab=readme#section"
+        )
+        == EXPECTED
+    )
+    
+    
 def test_root_only():
     assert validate_url("https://github.com/") is None
 
 
 def test_non_github_domain():
-    assert validate_url(
-        "https://www.youtube.com/watch?v=EbI74XqaJ_0&list=RD9aED02XuLwo&index=2"
-    ) is None
+    assert (
+        validate_url(
+            "https://www.youtube.com/watch?v=EbI74XqaJ_0&list=RD9aED02XuLwo&index=2"
+        )
+        is None
+    )
 
 
 def test_owner_only_with_query_string():
