@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 
 from app.config import CLONE_DIR, REINDEX_TOKEN
-from app.ingest.fetch_repo import fetch_repo, clean_repo, validate_url
+from app.ingest.fetch_repo import fetch_repo, clean_repo
 from app.ingest.embed import ingest
 from app.rag.chat import chat
 from app.db.vectorstore import clean_collection
@@ -39,7 +39,7 @@ class IngestRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     question: str
-    repo_url: str
+    repo_slug: str
     n_results: int = 5
 
 
@@ -59,19 +59,22 @@ def ingest_repo(request: IngestRequest, x_reindex_token: str = Header(None)):
         return JSONResponse(
             status_code=status_code, content={"message": result["message"]}
         )
-        
+
     if not result["already_cloned"]:
-        clean_collection(result["clone_subdir"])
-        ingest(result["clone_dir"], result["clone_subdir"])
-    return JSONResponse(status_code=200, content={"message": "Ingestion complete"})
+        clean_collection(result["repo_slug"])
+        ingest(result["clone_dir"], result["repo_slug"])
+    return JSONResponse(
+    status_code=200,
+    content={
+        "message": "Ingestion complete",
+        "repo_slug": result["repo_slug"],
+    },
+)
 
 
 @app.post("/chat")
 def get_answer(request: ChatRequest):
-    parsed = validate_url(request.repo_url)
-    if parsed is None:
-        return JSONResponse(status_code=400, content={"message": "The provided URL is not a valid GitHub repository URL."})
-    response = chat(request.question, parsed["clone_subdir"], request.n_results)
+    response = chat(request.question, request.repo_slug, request.n_results)
     return JSONResponse(status_code=200, content=response)
 
 

@@ -35,28 +35,48 @@ def validate_url(target_repo_url):
     if not owner or not repo:
         return None
 
-    clone_subdir = f"{owner}-{repo}"
+    repo_slug = f"{owner}-{repo}"
     normalized_url = f"https://github.com/{owner}/{repo}.git"
 
-    return {"target_repo_url": normalized_url, "clone_subdir": clone_subdir}
+    return {"target_repo_url": normalized_url, "repo_slug": repo_slug}
 
 
 def fetch_repo(target_repo_url):
     result = validate_url(target_repo_url)
     if result is None:
-        return {"success": False, "error": "invalid_url", "message": "The provided URL is not a valid GitHub repository URL."}
+        return {
+            "success": False,
+            "error": "invalid_url",
+            "message": "The provided URL is not a valid GitHub repository URL.",
+        }
 
     os.makedirs(CLONE_DIR, exist_ok=True)
-    clone_dir_path = Path(CLONE_DIR) / result["clone_subdir"]
-    
+    clone_dir_path = Path(CLONE_DIR) / result["repo_slug"]
+
     if (clone_dir_path / ".git").exists():
-        return {"success": True, "already_cloned": True, "message":"Cloned repo already exists", "clone_dir": str(clone_dir_path), "clone_subdir": result["clone_subdir"]}
+        return {
+            "success": True,
+            "already_cloned": True,
+            "message": "Cloned repo already exists",
+            "clone_dir": str(clone_dir_path),
+            "repo_slug": result["repo_slug"],
+        }
     try:
         Repo.clone_from(result["target_repo_url"], clone_dir_path)
     except GitCommandError:
-        return {"success": False, "error": "clone_failed", "message": "Could not clone the repository. It may be private, not exist, or there was a network issue."}
-    
-    return {"success": True, "already_cloned": False, "message": "Cloning completed.", "clone_dir": str(clone_dir_path), "clone_subdir": result["clone_subdir"]}
+        return {
+            "success": False,
+            "error": "clone_failed",
+            "message": "Could not clone the repository. It may be private, not exist, or there was a network issue.",
+        }
+
+    return {
+        "success": True,
+        "already_cloned": False,
+        "message": "Cloning completed.",
+        "clone_dir": str(clone_dir_path),
+        "repo_slug": result["repo_slug"],
+    }
 
 
 def clean_repo(clone_dir):

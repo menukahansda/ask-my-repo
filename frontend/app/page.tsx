@@ -38,6 +38,8 @@ export default function Home() {
         return;
       }
 
+      const ingestData = await res.json();
+
       const result = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: {
@@ -45,7 +47,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           question: ques,
-          repo_url: url,
+          repo_slug: ingestData.repo_slug,
         }),
       });
 
