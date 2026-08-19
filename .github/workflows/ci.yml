@@ -25,7 +25,6 @@ jobs:
         working-directory: backend
         run: pip install -r requirements.txt
       
-      - name: Check imports work
-        run: |
-          cd backend
-          python -c "from app.ingest.fetch_repo import fetch_repo"
+      - name: Run tests
+        working-directory: backend
+        run: pytest tests/ -v
