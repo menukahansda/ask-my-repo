@@ -26,8 +26,8 @@ Answer:"""
     return prompt
 
 
-def chat(query, n_results=5):
-    embed_results = retrieve(query, n_results=n_results)
+def chat(query, repo_slug, n_results=5):
+    embed_results = retrieve(query, repo_slug, n_results=n_results)
     prompt = generate_prompt(query, embed_results)
 
     response = genai_client.models.generate_content(
