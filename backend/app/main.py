@@ -60,7 +60,7 @@ def ingest_repo(request: IngestRequest, x_reindex_token: str = Header(None)):
         )
         
     clean_collection()
-    ingest()
+    ingest(result["clone_dir"])
     return {"status": "ingestion complete"}
 
 

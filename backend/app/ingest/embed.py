@@ -3,7 +3,7 @@
 from google import genai
 # from sentence_transformers import SentenceTransformer
 
-from app.config import CLONE_DIR, GEMINI_API_KEY
+from app.config import GEMINI_API_KEY
 from app.ingest.chunker import walk_and_chunk_files
 from app.db.vectorstore import collection
 
@@ -32,8 +32,8 @@ def embed_and_upsert(chunks):
         embeddings=embeddings,
     )
 
-def ingest():
-    chunks = walk_and_chunk_files(CLONE_DIR)
+def ingest(repo_dir):
+    chunks = walk_and_chunk_files(repo_dir)
     embed_and_upsert(chunks)
 
 if __name__ == "__main__":
