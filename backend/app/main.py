@@ -59,8 +59,9 @@ def ingest_repo(request: IngestRequest, x_reindex_token: str = Header(None)):
             status_code=status_code, content={"message": result["message"]}
         )
         
-    clean_collection()
-    ingest(result["clone_dir"])
+    if not result["already_cloned"]:
+        clean_collection()
+        ingest(result["clone_dir"])
     return JSONResponse(status_code=200, content={"message": "Ingestion complete"})
 
 
