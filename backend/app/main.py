@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import uvicorn
 
 from app.config import CLONE_DIR, REINDEX_TOKEN
@@ -12,6 +13,7 @@ from app.rag.chat import chat
 from app.db.vectorstore import clean_collection
 
 PORT = 8000
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,6 +36,7 @@ app.add_middleware(
 class IngestRequest(BaseModel):
     repo_url: str
 
+
 class ChatRequest(BaseModel):
     question: str
     n_results: int = 5
@@ -47,14 +50,19 @@ def check_health():
 @app.post("/ingest")
 def ingest_repo(request: IngestRequest, x_reindex_token: str = Header(None)):
     if x_reindex_token != REINDEX_TOKEN:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-    clean_repo(CLONE_DIR)   
-         
-    clean_collection()
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    result = fetch_repo(request.repo_url)
+    if not result["success"]:
+        status_code = 400 if result["error"] == "invalid_url" else 502
+        return JSONResponse(
+            status_code=status_code, content={"message": result["message"]}
+        )
         
-    fetch_repo(request.repo_url, CLONE_DIR)
+    clean_collection()
     ingest()
     return {"status": "ingestion complete"}
+
 
 @app.post("/chat")
 def get_answer(request: ChatRequest):
