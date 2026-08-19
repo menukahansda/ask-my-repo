@@ -57,6 +57,7 @@ def chat(query, repo_slug, n_results=5):
 
 if __name__ == "__main__":
     user_query = "What is the purpose of this repository?"
-    result = chat(user_query)
+    repo_slug = "menukahansda-task-management-system"
+    result = chat(user_query, repo_slug)
     print(result["answer"])
     print("\nSources:", result["sources"])
