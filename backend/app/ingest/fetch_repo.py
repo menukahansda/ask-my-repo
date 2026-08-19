@@ -50,13 +50,13 @@ def fetch_repo(target_repo_url):
     clone_dir_path = Path(CLONE_DIR) / result["clone_subdir"]
     
     if (clone_dir_path / ".git").exists():
-        return {"success": True, "already_cloned": True, "message":"Cloned repo already exists", "clone_dir": str(clone_dir_path)}
+        return {"success": True, "already_cloned": True, "message":"Cloned repo already exists", "clone_dir": str(clone_dir_path), "clone_subdir": result["clone_subdir"]}
     try:
         Repo.clone_from(result["target_repo_url"], clone_dir_path)
     except GitCommandError:
         return {"success": False, "error": "clone_failed", "message": "Could not clone the repository. It may be private, not exist, or there was a network issue."}
     
-    return {"success": True, "already_cloned": False, "message": "Cloning completed.", "clone_dir": str(clone_dir_path)}
+    return {"success": True, "already_cloned": False, "message": "Cloning completed.", "clone_dir": str(clone_dir_path), "clone_subdir": result["clone_subdir"]}
 
 
 def clean_repo(clone_dir):
