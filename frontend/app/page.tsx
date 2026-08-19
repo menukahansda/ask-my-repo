@@ -33,7 +33,8 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        setError("Internal Server Error");
+        const body = await res.json().catch(() => null);
+        setError(body?.message || "Internal Server Error");
         return;
       }
 
@@ -48,7 +49,8 @@ export default function Home() {
       });
 
       if (!result.ok) {
-        setError("Internal Server Error");
+        const body = await result.json().catch(() => null);
+        setError(body?.message || "Internal Server Error");
         return;
       }
       const data = await result.json();
