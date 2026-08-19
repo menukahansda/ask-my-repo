@@ -44,7 +44,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/")
 def check_health():
-    return {"health": "good"}
+    return JSONResponse(status_code=200, content={"message": "Service is healthy"})
 
 
 @app.post("/ingest")
@@ -61,19 +61,19 @@ def ingest_repo(request: IngestRequest, x_reindex_token: str = Header(None)):
         
     clean_collection()
     ingest(result["clone_dir"])
-    return {"status": "ingestion complete"}
+    return JSONResponse(status_code=200, content={"message": "Ingestion complete"})
 
 
 @app.post("/chat")
 def get_answer(request: ChatRequest):
     response = chat(request.question, request.n_results)
-    return response
+    return JSONResponse(status_code=200, content=response)
 
 
 @app.post("/cleanup")
 def cleanup():
     clean_repo(CLONE_DIR)
-    return {"cleanup": "Completed"}
+    return JSONResponse(status_code=200, content={"message": "Cleanup completed"})
 
 
 if __name__ == "__main__":
