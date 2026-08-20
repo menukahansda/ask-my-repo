@@ -84,11 +84,11 @@ def walk_and_chunk_files(clone_dir):
         print(f"Directory {clone_dir} does not exist.")
         return
 
-    output_file = "chunks.txt"
+    # output_file = "chunks.txt"
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write("CHUNK PREVIEW\n")
-        f.write("=" * 80 + "\n\n")
+    # with open(output_file, "w", encoding="utf-8") as f:
+    #     f.write("CHUNK PREVIEW\n")
+    #     f.write("=" * 80 + "\n\n")
 
     total_files = 0
     total_chunks = 0
@@ -113,21 +113,23 @@ def walk_and_chunk_files(clone_dir):
                 continue
 
             total_files += 1
-            with open(output_file, "a", encoding="utf-8") as f:
-                for chunk in chunks:
-                    f.write("=" * 80 + "\n")
-                    f.write(f"FILE: {chunk['metadata']['file_origin']}\n")
-                    f.write(f"CHUNK: {chunk['metadata']['chunk_index']}\n")
-                    f.write(f"ID: {chunk['id']}\n")
-                    f.write("=" * 80 + "\n")
-                    f.write(chunk["content"])
-                    f.write("\n\n")
-                    total_chunks += 1
-                    all_chunks.append(chunk)
+            # with open(output_file, "a", encoding="utf-8") as f:
+            #     for chunk in chunks:
+            #         f.write("=" * 80 + "\n")
+            #         f.write(f"FILE: {chunk['metadata']['file_origin']}\n")
+            #         f.write(f"CHUNK: {chunk['metadata']['chunk_index']}\n")
+            #         f.write(f"ID: {chunk['id']}\n")
+            #         f.write("=" * 80 + "\n")
+            #         f.write(chunk["content"])
+            #         f.write("\n\n")
+            #         total_chunks += 1
+            #         all_chunks.append(chunk)
+            total_chunks += len(chunks)
+            all_chunks.extend(chunks)
 
-    print(f"Files processed: {total_files}")
-    print(f"Chunks created: {total_chunks}")
-    print(f"Preview saved to: {output_file}")
+    # print(f"Files processed: {total_files}")
+    # print(f"Chunks created: {total_chunks}")
+    # print(f"Preview saved to: {output_file}")
 
     return all_chunks
 
