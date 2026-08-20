@@ -68,7 +68,8 @@ def fetch_repo(target_repo_url):
         }
     try:
         Repo.clone_from(result["target_repo_url"], clone_dir_path)
-    except GitCommandError:
+    except GitCommandError as e:
+        logger.error(f"clone failed for {target_repo_url}: {e}")
         return {
             "success": False,
             "error": "clone_failed",
