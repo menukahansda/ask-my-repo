@@ -10,7 +10,6 @@ export default function Home() {
   const [sources, setSources] = useState([]);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  const REINDEX_TOKEN = process.env.NEXT_PUBLIC_REINDEX_TOKEN || "";
 
   useEffect(() => {
     fetch(`${API_URL}/`).catch(() => {});
@@ -27,7 +26,6 @@ export default function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-reindex-token": REINDEX_TOKEN,
         },
         body: JSON.stringify({
           repo_url: url,
