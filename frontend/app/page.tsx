@@ -18,6 +18,8 @@ export default function Home() {
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+    setAnswer("");
+    setSources([]);
     setError("");
     setLoading(true);
     try {
