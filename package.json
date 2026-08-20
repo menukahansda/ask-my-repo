@@ -1,0 +1,25 @@
+{
+  "name": "ask-my-repo",
+  "version": "1.0.0",
+  "description": "A RAG chatbot over a GitHub repo's code/docs, with a CI/CD pipeline that auto-reindexes the vector store when the target repo updates.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"cd backend && venv\\Scripts\\python -m app.main\" \"cd frontend && npm run dev\""
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/menukahansda/ask-my-repo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/menukahansda/ask-my-repo/issues"
+  },
+  "homepage": "https://github.com/menukahansda/ask-my-repo#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
