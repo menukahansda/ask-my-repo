@@ -2,12 +2,16 @@ import os
 import shutil
 import stat
 from pathlib import Path
+import time
 
 from git import Repo
 from git.exc import GitCommandError
 from urllib.parse import urlparse
 
 from app.config import TARGET_REPO_URL, CLONE_DIR
+from app.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def validate_url(target_repo_url):
@@ -54,6 +58,7 @@ def fetch_repo(target_repo_url):
     clone_dir_path = Path(CLONE_DIR) / result["repo_slug"]
 
     if (clone_dir_path / ".git").exists():
+        logger.info(f"reusing existing clone at {clone_dir_path} — will NOT re-ingest")
         return {
             "success": True,
             "already_cloned": True,
