@@ -28,6 +28,11 @@ Answer:"""
 
 def chat(query, repo_slug, n_results=5):
     embed_results = retrieve(query, repo_slug, n_results=n_results)
+    if not embed_results["documents"][0]:
+        return {
+            "answer": "No content has been ingested for this repository yet, or nothing matched your question.",
+            "sources": [],
+        }
     prompt = generate_prompt(query, embed_results)
 
     response = genai_client.models.generate_content(
