@@ -12,7 +12,7 @@ from app.config import TARGET_REPO_URL, CLONE_DIR
 from app.logging_config import get_logger
 
 logger = get_logger(__name__)
-
+STALE_DAYS = 3
 
 def validate_url(target_repo_url):
     """Validates a GitHub repo URL. Returns dict on success, None otherwise."""
@@ -94,7 +94,20 @@ def clean_repo(clone_dir):
         shutil.rmtree(clone_dir, onexc=remove_readonly)
         print("Repository cleaned up.")
 
+def cleanup_stale_repos():
+    cutoff = time.time() - STALE_DAYS * 86400
+    clone_path = Path(CLONE_DIR)
+    if not clone_path.exists():
+        return
 
+    from app.db.vectorstore import clean_collection  # local import avoids a circular import risk
+
+    for repo_dir in clone_path.iterdir():
+        if repo_dir.is_dir() and repo_dir.stat().st_mtime < cutoff:
+            logger.info(f"Cleaning up stale repo: {repo_dir.name}")
+            clean_collection(repo_dir.name)
+            clean_repo(str(repo_dir))
+            
 if __name__ == "__main__":
     result = fetch_repo(TARGET_REPO_URL)
     print("Result:\n", result)

@@ -6,8 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from app.config import CLONE_DIR
-from app.ingest.fetch_repo import fetch_repo, clean_repo
+from app.ingest.fetch_repo import fetch_repo, cleanup_stale_repos
 from app.ingest.embed import ingest
 from app.rag.chat import chat
 from app.db.vectorstore import clean_collection
@@ -17,6 +16,7 @@ PORT = 8000
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    cleanup_stale_repos()
     print("Model loaded and ready.")
     yield
     print("Shutting down.")
