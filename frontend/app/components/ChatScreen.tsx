@@ -2,22 +2,22 @@
 import type { Message } from "../page";
 
 interface Props {
-  url: string;
-  setUrl: (v: string) => void;
+  repoSlug: string;
   question: string;
   setQuestion: (v: string) => void;
   onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
+  onNewRepo: () => void;
   loading: boolean;
   error: string;
   messages: Message[];
 }
 
 export default function ChatScreen({
-  url,
-  setUrl,
+  repoSlug,
   question,
   setQuestion,
   onSubmit,
+  onNewRepo,
   loading,
   error,
   messages,
@@ -29,6 +29,7 @@ export default function ChatScreen({
           <span className="prompt-symbol">$</span> ask-my-repo
           <span className="cursor" />
         </h1>
+        <p className="term-sub">chatting with {repoSlug}</p>
       </div>
 
       <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto">
@@ -60,20 +61,6 @@ export default function ChatScreen({
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <label className="field">
           <span className="field-label">
-            <span className="field-arrow">→</span> repo url
-          </span>
-          <input
-            type="text"
-            value={url}
-            placeholder="github.com/you/your-repo"
-            onChange={(e) => setUrl(e.target.value)}
-            className="field-input"
-            required
-          />
-        </label>
-
-        <label className="field">
-          <span className="field-label">
             <span className="field-arrow">?</span> question
           </span>
           <input
@@ -86,9 +73,14 @@ export default function ChatScreen({
           />
         </label>
 
-        <button type="submit" className="run-btn" disabled={loading}>
-          {loading ? "running…" : "run query"}
-        </button>
+        <div className="flex gap-2">
+          <button type="submit" className="run-btn" disabled={loading}>
+            {loading ? "running…" : "run query"}
+          </button>
+          <button type="button" onClick={onNewRepo} className="run-btn">
+            new repo
+          </button>
+        </div>
       </form>
 
       {loading && (

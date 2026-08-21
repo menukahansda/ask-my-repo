@@ -15,6 +15,7 @@ export default function Home() {
   const [err, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [repoSlug, setRepoSlug] = useState("");
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -22,6 +23,12 @@ export default function Home() {
     fetch(`${API_URL}/`).catch(() => {});
   }, []);
 
+  function handleNewRepo() {
+    setRepoSlug("");
+    setUrl("");
+    setMessages([]);
+    setError("");
+  }
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -30,23 +37,29 @@ export default function Home() {
     const currentQuestion = ques;
 
     try {
-      const res = await fetch(`${API_URL}/ingest`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          repo_url: url,
-        }),
-      });
+      let slug = repoSlug;
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        setError(body?.message || "Internal Server Error");
-        return;
+      if (!slug) {
+        const res = await fetch(`${API_URL}/ingest`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            repo_url: url,
+          }),
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          setError(body?.message || "Internal Server Error");
+          return;
+        }
+
+        const ingestData = await res.json();
+        slug = ingestData.repo_slug;
+        setRepoSlug(slug);
       }
-
-      const ingestData = await res.json();
 
       const result = await fetch(`${API_URL}/chat`, {
         method: "POST",
@@ -55,7 +68,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           question: currentQuestion,
-          repo_slug: ingestData.repo_slug,
+          repo_slug: slug,
         }),
       });
 
@@ -93,7 +106,7 @@ export default function Home() {
           </div>
 
           <div className="px-6 py-8 flex flex-col gap-6">
-            {messages.length === 0 ? (
+            {!repoSlug ? (
               <RepoOnboarding
                 url={url}
                 setUrl={setUrl}
@@ -105,11 +118,11 @@ export default function Home() {
               />
             ) : (
               <ChatScreen
-                url={url}
-                setUrl={setUrl}
+                repoSlug={repoSlug}
                 question={ques}
                 setQuestion={setQuestion}
                 onSubmit={handleSubmit}
+                onNewRepo={handleNewRepo}
                 loading={loading}
                 error={err}
                 messages={messages}
