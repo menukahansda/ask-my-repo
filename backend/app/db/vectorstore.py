@@ -2,6 +2,7 @@
 import re
 
 import chromadb
+from chromadb.errors import NotFoundError
 
 from app.logging_config import get_logger
 
@@ -25,5 +26,5 @@ def clean_collection(repo_slug: str):
     try:
         client.delete_collection(name=name)
         logger.info(f"ChromaDB collection '{name}' deleted.")
-    except ValueError:
+    except NotFoundError:
         logger.info(f"Collection '{name}' did not exist, nothing to delete.")
