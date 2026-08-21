@@ -62,12 +62,12 @@ def ingest_repo(request: IngestRequest):
         clean_collection(result["repo_slug"])
         ingest(result["clone_dir"], result["repo_slug"])
     return JSONResponse(
-    status_code=200,
-    content={
-        "message": "Ingestion complete",
-        "repo_slug": result["repo_slug"],
-    },
-)
+        status_code=200,
+        content={
+            "message": "Ingestion complete",
+            "repo_slug": result["repo_slug"],
+        },
+    )
 
 
 @app.post("/chat")
@@ -76,11 +76,7 @@ def get_answer(request: ChatRequest):
     return JSONResponse(status_code=200, content=response)
 
 
-@app.post("/cleanup")
-def cleanup():
-    clean_repo(CLONE_DIR)
-    return JSONResponse(status_code=200, content={"message": "Cleanup completed"})
-
-
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", reload=True, reload_dirs=["app"], host="127.0.0.1", port=PORT)
+    uvicorn.run(
+        "app.main:app", reload=True, reload_dirs=["app"], host="127.0.0.1", port=PORT
+    )
