@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import RepoOnboarding from "./components/RepoOnboarding";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -7,7 +8,7 @@ export default function Home() {
   const [err, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [ans, setAnswer] = useState("");
-  const [sources, setSources] = useState([]);
+  const [sources, setSources] = useState<string[]>([]);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -77,88 +78,17 @@ export default function Home() {
           </div>
 
           <div className="px-6 py-8 flex flex-col gap-6">
-            <div>
-              <h1 className="prompt-line">
-                <span className="prompt-symbol">$</span> ask-my-repo
-                <span className="cursor" />
-              </h1>
-              <p className="term-sub">point me at a repo, then ask anything.</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <label className="field">
-                <span className="field-label">
-                  <span className="field-arrow">→</span> repo url
-                </span>
-                <input
-                  type="text"
-                  name="repo-url"
-                  id="repo-url"
-                  value={url}
-                  placeholder="github.com/you/your-repo"
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="field-input"
-                  required
-                />
-              </label>
-
-              <label className="field">
-                <span className="field-label">
-                  <span className="field-arrow">?</span> question
-                </span>
-                <input
-                  type="text"
-                  name="question"
-                  id="question"
-                  placeholder="where's the auth logic handled?"
-                  value={ques}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  className="field-input"
-                  required
-                />
-              </label>
-
-              <button type="submit" className="run-btn" disabled={loading}>
-                {loading ? "running…" : "run query"}
-              </button>
-            </form>
-
-            {loading && (
-              <div className="thinking">
-                <span className="thinking-dot" />
-                <span className="thinking-dot" />
-                <span className="thinking-dot" />
-                <span className="term-sub">reading the codebase…</span>
-              </div>
-            )}
-
-            {err && (
-              <div className="err-box">
-                <span className="err-symbol">✕</span> {err}
-              </div>
-            )}
-
-            {ans && (
-              <div className="flex flex-col gap-4">
-                <div className="answer-box">
-                  <div className="answer-label">output</div>
-                  <p className="answer-text">{ans}</p>
-                </div>
-
-                {sources.length > 0 && (
-                  <div className="diff-box">
-                    <div className="answer-label">sources cited</div>
-                    <ul className="diff-list">
-                      {sources.map((src) => (
-                        <li key={src} className="diff-line">
-                          <span className="diff-plus">+</span> {src}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
+            <RepoOnboarding
+              url={url}
+              setUrl={setUrl}
+              question={ques}
+              setQuestion={setQuestion}
+              onSubmit={handleSubmit}
+              loading={loading}
+              error={err}
+              answer={ans}
+              sources={sources}
+            />
           </div>
         </div>
       </div>
