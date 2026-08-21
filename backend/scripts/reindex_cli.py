@@ -1,13 +1,16 @@
-from app.config import TARGET_REPO_URL, CLONE_DIR
+from app.config import TARGET_REPO_URL
 from app.db.vectorstore import clean_collection
-from app.ingest.fetch_repo import clean_repo, fetch_repo
+from app.ingest.fetch_repo import fetch_repo
 from app.ingest.embed import ingest
 
 def reindex():
-    clean_repo(CLONE_DIR)
-    clean_collection()
-    fetch_repo(TARGET_REPO_URL, CLONE_DIR)
-    ingest()
+    result = fetch_repo(TARGET_REPO_URL)
+    if not result["success"]:
+        print(f"Reindex failed: {result['message']}")
+        return
+
+    clean_collection(result["repo_slug"])
+    ingest(result["clone_dir"], result["repo_slug"])
     print("Reindex completed successfully.")
     
 if __name__ == "__main__":
