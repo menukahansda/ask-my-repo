@@ -2,13 +2,18 @@
 import { useState, useEffect } from "react";
 import RepoOnboarding from "./components/RepoOnboarding";
 
+export interface Message {
+  question: string;
+  answer: string;
+  sources: string[];
+}
+
 export default function Home() {
   const [url, setUrl] = useState("");
   const [ques, setQuestion] = useState("");
   const [err, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [ans, setAnswer] = useState("");
-  const [sources, setSources] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -18,10 +23,11 @@ export default function Home() {
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    setAnswer("");
-    setSources([]);
     setError("");
     setLoading(true);
+
+    const currentQuestion = ques;
+
     try {
       const res = await fetch(`${API_URL}/ingest`, {
         method: "POST",
@@ -47,7 +53,7 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          question: ques,
+          question: currentQuestion,
           repo_slug: ingestData.repo_slug,
         }),
       });
@@ -58,14 +64,22 @@ export default function Home() {
         return;
       }
       const data = await result.json();
-      setAnswer(data.answer);
-      setSources(data.sources);
+      setMessages((prev) => [
+        ...prev,
+        {
+          question: currentQuestion,
+          answer: data.answer,
+          sources: data.sources,
+        },
+      ]);
+      setQuestion("");
     } catch {
       setError("Could not reach the server. Please try again.");
     } finally {
       setLoading(false);
     }
   }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 term-bg">
       <div className="w-full max-w-2xl flex flex-col gap-4">
@@ -86,8 +100,7 @@ export default function Home() {
               onSubmit={handleSubmit}
               loading={loading}
               error={err}
-              answer={ans}
-              sources={sources}
+              messages={messages}
             />
           </div>
         </div>
