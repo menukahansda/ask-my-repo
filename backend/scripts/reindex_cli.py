@@ -1,7 +1,8 @@
 from app.config import TARGET_REPO_URL
 from app.db.vectorstore import clean_collection
-from app.ingest.fetch_repo import fetch_repo
 from app.ingest.embed import ingest
+from app.ingest.fetch_repo import fetch_repo
+
 
 def reindex():
     result = fetch_repo(TARGET_REPO_URL)

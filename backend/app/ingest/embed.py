@@ -3,11 +3,11 @@
 import time
 
 from google import genai
-# from sentence_transformers import SentenceTransformer
 
+# from sentence_transformers import SentenceTransformer
 from app.config import GEMINI_API_KEY
-from app.ingest.chunker import walk_and_chunk_files
 from app.db.vectorstore import get_collection
+from app.ingest.chunker import walk_and_chunk_files
 from app.logging_config import get_logger
 
 logger = get_logger(__name__)

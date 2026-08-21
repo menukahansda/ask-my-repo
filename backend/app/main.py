@@ -1,15 +1,15 @@
 from contextlib import asynccontextmanager
 
+import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import uvicorn
+from pydantic import BaseModel
 
-from app.ingest.fetch_repo import fetch_repo, cleanup_stale_repos
-from app.ingest.embed import ingest
-from app.rag.chat import chat
 from app.db.vectorstore import clean_collection
+from app.ingest.embed import ingest
+from app.ingest.fetch_repo import cleanup_stale_repos, fetch_repo
+from app.rag.chat import chat
 
 PORT = 8000
 

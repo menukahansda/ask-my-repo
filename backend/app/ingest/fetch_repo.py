@@ -1,14 +1,14 @@
 import os
 import shutil
 import stat
-from pathlib import Path
 import time
+from pathlib import Path
+from urllib.parse import urlparse
 
 from git import Repo
 from git.exc import GitCommandError
-from urllib.parse import urlparse
 
-from app.config import TARGET_REPO_URL, CLONE_DIR
+from app.config import CLONE_DIR, TARGET_REPO_URL
 from app.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -33,8 +33,7 @@ def validate_url(target_repo_url):
         return None
 
     owner, repo = parts[0], parts[1]
-    if repo.endswith(".git"):
-        repo = repo[:-4]
+    repo = repo.removesuffix(".git")
 
     if not owner or not repo:
         return None
@@ -100,7 +99,9 @@ def cleanup_stale_repos():
     if not clone_path.exists():
         return
 
-    from app.db.vectorstore import clean_collection  # local import avoids a circular import risk
+    from app.db.vectorstore import (
+        clean_collection,  # local import avoids a circular import risk
+    )
 
     for repo_dir in clone_path.iterdir():
         if repo_dir.is_dir() and repo_dir.stat().st_mtime < cutoff:

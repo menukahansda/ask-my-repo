@@ -1,9 +1,12 @@
 # chromadb load/create coll
 import re
+
 import chromadb
 
-client = chromadb.PersistentClient(path="./chroma_db")
+from app.logging_config import get_logger
 
+client = chromadb.PersistentClient(path="./chroma_db")
+logger = get_logger(__name__)
 
 def _sanitize_name(repo_slug: str) -> str:
     """Chroma collection names must be 3-63 chars, alnum/underscore/hyphen, start/end alnum."""
@@ -21,6 +24,6 @@ def clean_collection(repo_slug: str):
     name = _sanitize_name(repo_slug)
     try:
         client.delete_collection(name=name)
-        print(f"ChromaDB collection '{name}' deleted.")
-    except Exception:
-        pass
+        logger.info(f"ChromaDB collection '{name}' deleted.")
+    except ValueError:
+        logger.info(f"Collection '{name}' did not exist, nothing to delete.")
