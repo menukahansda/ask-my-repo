@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import RepoOnboarding from "./components/RepoOnboarding";
+import ChatScreen from "./components/ChatScreen";
 
 export interface Message {
   question: string;
@@ -92,16 +93,28 @@ export default function Home() {
           </div>
 
           <div className="px-6 py-8 flex flex-col gap-6">
-            <RepoOnboarding
-              url={url}
-              setUrl={setUrl}
-              question={ques}
-              setQuestion={setQuestion}
-              onSubmit={handleSubmit}
-              loading={loading}
-              error={err}
-              messages={messages}
-            />
+            {messages.length === 0 ? (
+              <RepoOnboarding
+                url={url}
+                setUrl={setUrl}
+                question={ques}
+                setQuestion={setQuestion}
+                onSubmit={handleSubmit}
+                loading={loading}
+                error={err}
+              />
+            ) : (
+              <ChatScreen
+                url={url}
+                setUrl={setUrl}
+                question={ques}
+                setQuestion={setQuestion}
+                onSubmit={handleSubmit}
+                loading={loading}
+                error={err}
+                messages={messages}
+              />
+            )}
           </div>
         </div>
       </div>
