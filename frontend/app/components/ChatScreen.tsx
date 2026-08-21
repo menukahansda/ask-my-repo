@@ -32,7 +32,7 @@ export default function ChatScreen({
         <p className="term-sub">chatting with {repoSlug}</p>
       </div>
 
-      <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto">
+      <div className="chat-scroll flex flex-col gap-4 max-h-[50vh] overflow-y-auto">
         {messages.map((msg, i) => (
           <div key={i} className="flex flex-col gap-2">
             <div className="prompt-line">

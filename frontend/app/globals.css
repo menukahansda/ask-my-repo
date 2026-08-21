@@ -231,3 +231,26 @@
   font-size: 11px;
   color: #484f58;
 }
+
+/* scroll bar */
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 #18181b; /* thumb, track */
+}
+
+.chat-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+  background: #18181b;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 4px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
