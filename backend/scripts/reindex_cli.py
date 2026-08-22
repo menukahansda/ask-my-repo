@@ -13,7 +13,7 @@ def reindex():
     try:
         clean_collection(result["repo_slug"])
         ingest(result["clone_dir"], result["repo_slug"])
-    except Exception as e:
+    except Exception as e: # noqa: BLE001
         print(f"Reindex failed during embedding: {e}")
         return
 
