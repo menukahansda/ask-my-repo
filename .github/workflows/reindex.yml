@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Trigger reindex via API
         run: |
-          curl -f -X POST https://ask-my-repo-ljml.onrender.com/ingest \
+          curl -v -X POST https://ask-my-repo-ljml.onrender.com/ingest \
             -H "Content-Type: application/json" \
             -d '{"repo_url": "${{ vars.TARGET_REPO_URL }}"}'
