@@ -64,7 +64,7 @@ def ingest_repo(request: IngestRequest):
         try:
             clean_collection(result["repo_slug"])
             ingest(result["clone_dir"], result["repo_slug"])
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             return JSONResponse(
                 status_code=502,
                 content={

@@ -28,7 +28,7 @@ def collection_has_data(repo_slug: str) -> bool:
     try:
         coll = client.get_collection(name=name)
         return coll.count() > 0
-    except Exception:
+    except NotFoundError:
         return False  # collection doesn't exist yet
 
 
