@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from app.db.vectorstore import clean_collection
+from app.db.vectorstore import clean_collection, collection_has_data
 from app.ingest.embed import ingest
 from app.ingest.fetch_repo import cleanup_stale_repos, fetch_repo
 from app.rag.chat import chat
@@ -58,9 +58,20 @@ def ingest_repo(request: IngestRequest):
             status_code=status_code, content={"message": result["message"]}
         )
 
-    if not result["already_cloned"]:
-        clean_collection(result["repo_slug"])
-        ingest(result["clone_dir"], result["repo_slug"])
+    needs_ingest = not result["already_cloned"] or not collection_has_data(result["repo_slug"])
+
+    if needs_ingest:
+        try:
+            clean_collection(result["repo_slug"])
+            ingest(result["clone_dir"], result["repo_slug"])
+        except Exception as e:
+            return JSONResponse(
+                status_code=502,
+                content={
+                    "message": f"Embedding failed: {e}. Please try again in a minute."
+                },
+            )
+            
     return JSONResponse(
         status_code=200,
         content={
