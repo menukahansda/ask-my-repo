@@ -10,9 +10,15 @@ def reindex():
         print(f"Reindex failed: {result['message']}")
         return
 
-    clean_collection(result["repo_slug"])
-    ingest(result["clone_dir"], result["repo_slug"])
+    try:
+        clean_collection(result["repo_slug"])
+        ingest(result["clone_dir"], result["repo_slug"])
+    except Exception as e:
+        print(f"Reindex failed during embedding: {e}")
+        return
+
     print("Reindex completed successfully.")
-    
+
+
 if __name__ == "__main__":
     reindex()
