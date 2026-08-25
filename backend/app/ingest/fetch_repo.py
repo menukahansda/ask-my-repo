@@ -44,6 +44,19 @@ def validate_url(target_repo_url):
     return {"target_repo_url": normalized_url, "repo_slug": repo_slug}
 
 
+def is_clone_up_to_date(clone_dir_path: Path) -> tuple[bool, object]:
+    """Returns (is_up_to_date, repo_object) — reuses the same fetch for both check and pull."""
+    repo = Repo(clone_dir_path)
+    try:
+        repo.remotes.origin.fetch()
+        local_sha = repo.head.commit.hexsha
+        remote_sha = repo.remotes.origin.refs[repo.active_branch.name].commit.hexsha
+        return local_sha == remote_sha, repo
+    except Exception as e: #noqa BLE001
+        logger.warning(f"Could not check if clone is up to date: {e}")
+        return True, repo
+    
+
 def fetch_repo(target_repo_url):
     result = validate_url(target_repo_url)
     if result is None:
@@ -57,14 +70,27 @@ def fetch_repo(target_repo_url):
     clone_dir_path = Path(CLONE_DIR) / result["repo_slug"]
 
     if (clone_dir_path / ".git").exists():
-        logger.info(f"reusing existing clone at {clone_dir_path} — will NOT re-ingest")
-        return {
-            "success": True,
-            "already_cloned": True,
-            "message": "Cloned repo already exists",
-            "clone_dir": str(clone_dir_path),
-            "repo_slug": result["repo_slug"],
-        }
+        up_to_date, repo = is_clone_up_to_date(clone_dir_path)
+        if up_to_date:
+            logger.info(f"reusing existing clone at {clone_dir_path} — will NOT re-ingest")
+            return {
+                "success": True,
+                "already_cloned": True,
+                "message": "Cloned repo already exists",
+                "clone_dir": str(clone_dir_path),
+                "repo_slug": result["repo_slug"],
+            }
+        else:
+            logger.info(f"clone at {clone_dir_path} is stale, pulling latest and will re-ingest")
+            repo.git.reset("--hard", f"origin/{repo.active_branch.name}")
+            return {
+                "success": True, 
+                "already_cloned": False,
+                "message": "Pulled updated repo",
+                "clone_dir": str(clone_dir_path),
+                "repo_slug": result["repo_slug"],
+            }
+            
     try:
         Repo.clone_from(result["target_repo_url"], clone_dir_path)
     except GitCommandError as e:
