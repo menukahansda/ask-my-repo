@@ -1,5 +1,7 @@
 from langchain_core.tools import tool
+from pathlib import Path
 
+from app.config import CLONE_DIR
 from app.rag.retriever import retrieve
 
 
@@ -14,3 +16,21 @@ def search_codebase(query: str, repo_slug: str) -> str:
     context = "\n\n---\n\n".join(context_blocks)
     return context
 
+@tool
+def read_file(file_path: str, repo_slug: str) -> str:
+    """Read the full contents of a specific file in the cloned repo."""
+    # TODO: resolve file_path against cloned_repos/{repo_slug}/, read it
+    # think about: what happens if the path doesn't exist, or escapes the repo dir?
+    root = (Path(CLONE_DIR) / repo_slug).resolve()
+    target = (root / file_path).resolve()
+    
+    if not target.is_relative_to(root):
+        raise ValueError("Path is outside repository.")
+    
+    if not target.is_file():
+        raise ValueError("File not found or path is not to any file.")
+    
+    content = target.read_text(encoding="utf-8", errors="ignore")
+    return content
+    
+    
