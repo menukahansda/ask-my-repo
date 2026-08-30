@@ -1,6 +1,6 @@
 from pathlib import Path
-from git import Repo
 
+from git import Repo
 from langchain_core.tools import tool
 
 from app.config import CLONE_DIR
