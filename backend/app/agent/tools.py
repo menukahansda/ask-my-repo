@@ -1,4 +1,5 @@
 from pathlib import Path
+from git import Repo
 
 from langchain_core.tools import tool
 
@@ -34,4 +35,36 @@ def read_file(file_path: str, repo_slug: str) -> str:
     content = target.read_text(encoding="utf-8", errors="ignore")
     return content
     
-    
+@tool
+def git_blame(file_path: str, repo_slug: str) -> str:
+    """Show line-by-line commit history for a file."""
+    root = (Path(CLONE_DIR) / repo_slug).resolve()
+    target = (root / file_path).resolve()
+
+    if not target.is_relative_to(root):
+        raise ValueError("Path is outside repository.")
+
+    if not target.is_file():
+        raise ValueError("File not found or path is not to any file.")
+
+    repo = Repo(root)
+
+    result = repo.blame("HEAD", file_path)
+
+    content = []
+    start_line = 1
+
+    for commit, lines in result:
+        end_line = start_line + len(lines) - 1
+
+        content.append(
+            f"Lines {start_line}-{end_line}\n"
+            f"Commit: {commit.hexsha}\n"
+            f"Author: {commit.author}\n"
+            f"Date: {commit.committed_datetime}\n"
+            f"Message: {commit.message.strip()}"
+        )
+
+        start_line = end_line + 1
+
+    return "\n\n---\n\n".join(content)
