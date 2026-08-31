@@ -1,5 +1,5 @@
 # ask-my-repo
-A RAG chatbot over a GitHub repo's code/docs, with a CI/CD pipeline that auto-reindexes the vector store when the target repo updates.
+A RAG chatbot over a GitHub repo's code/docs, with a CI/CD pipeline that checks daily and reindexes the vector store when the target repo has changed.
 
 Live demo: [ask-my-repo-steel.vercel.app](https://ask-my-repo-steel.vercel.app/)
 
@@ -24,6 +24,11 @@ ask-my-repo/
 │   ├── app/
 │   │   ├── main.py              # FastAPI app entrypoint
 │   │   ├── config.py            # env vars, API keys
+│   │   ├── logging_config.py    # logging setup
+│   │   ├── agent/               # LangChain agent — local branch only, not on main, not wired into /chat yet
+│   │   │   ├── graph.py
+│   │   │   ├── state.py
+│   │   │   └── tools.py
 │   │   ├── ingest/
 │   │   │   ├── fetch_repo.py    # clone/pull target repo
 │   │   │   ├── chunker.py       # split code/docs into chunks
@@ -35,20 +40,33 @@ ask-my-repo/
 │   │       └── vectorstore.py   # ChromaDB client wrapper
 │   │ 
 │   ├── dev_scripts/
-│   │   └── test_query.py        # test if retriver and embed works 
-│   │ 
+│   │   └── test_query.py        # test if retriever and embed works 
+│   ├── scripts/
+│   │   └── reindex_cli.py       # manual trigger for the same reindex logic
+│   ├── tests/                   # pytest suite run by CI (ci.yml)
+│   │   ├── test_chunker.py
+│   │   ├── test_fetch_repo.py
+│   │   └── test_vectorstore.py
+│   ├── agent_tester.py          # standalone script for exercising the agent — local branch only
+│   ├── pytest.ini
 │   ├── requirements.txt
 │   └── Dockerfile      
-│   │         
+│          
 ├── frontend/
-│   └── (Next.js app — chat UI, repo-url input)
-│   
+│   ├── app/
+│   │   ├── components/
+│   │   │   ├── ChatScreen.tsx
+│   │   │   └── RepoOnboarding.tsx
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── globals.css
+│   └── Dockerfile
+│
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml               # lint/test on push
 │       └── reindex.yml          # triggered reindex job
-├── scripts/
-│   └── reindex_cli.py           # manual trigger for the same reindex logic
+├── package.json                 # root "npm run dev" — runs backend + frontend together
 └── README.md
 ```
 
@@ -90,6 +108,7 @@ ask-my-repo/
 cd backend
 python -m venv venv
 source venv/Scripts/activate   # Windows Git Bash
+# source venv/bin/activate       # macOS/Linux
 pip install -r requirements.txt
 ```
 Create a `.env` file in `backend/`:
@@ -111,6 +130,15 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ## Running the App
 
+### Both (from repo root)
+```bash
+npm install
+npm run dev
+```
+Runs backend + frontend together via `concurrently`.
+
+> ⚠️ Currently Windows-only (the script hardcodes `venv\Scripts\python`). On macOS/Linux, run backend and frontend separately using the sections below.
+
 ### Backend
 ```bash
 cd backend
@@ -128,6 +156,7 @@ App available at `http://localhost:3000`.
 ---
 
 ## Known Limitations
-- Supports one active repo at a time (re-ingesting clears the previous repo's data)
 - Public repositories only (no authentication for private repos)
 - Citations reflect the model's self-reported sources from retrieved context, not strict per-line verification
+- Uses Gemini's free-tier API, which enforces a 100 requests/minute quota on embeddings. Ingesting multiple repos in quick succession may hit this limit; space out /ingest calls by ~20-30s if you see repeated failures.
+
