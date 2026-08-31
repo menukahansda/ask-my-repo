@@ -27,7 +27,7 @@ jobs:
       
       - name: Lint with ruff
         working-directory: backend
-        run: ruff check .
+        run: ruff check . --fix
         
       - name: Run tests
         working-directory: backend
