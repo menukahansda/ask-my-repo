@@ -1,7 +1,7 @@
 {
   "name": "ask-my-repo",
   "version": "1.0.0",
-  "description": "A RAG chatbot over a GitHub repo's code/docs, with a CI/CD pipeline that auto-reindexes the vector store when the target repo updates.",
+  "description": "A RAG chatbot over a GitHub repo's code/docs, with a CI/CD pipeline that checks daily and reindexes the vector store when the target repo has changed.",
   "main": "index.js",
   "scripts": {
     "dev": "concurrently -n backend,frontend -c blue,green \"cd backend && venv\\Scripts\\python -m app.main\" \"cd frontend && npm run dev\""
